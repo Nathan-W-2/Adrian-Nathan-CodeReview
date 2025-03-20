@@ -43,13 +43,13 @@ int main()
     int characteristic2, numerator2, denominator2;
 
     //initialize the values
-    characteristic1 = 10;
+    characteristic1 = 1000;
     numerator1 = 1;
-    denominator1 = 2;
+    denominator1 = 3;
 
     characteristic2 = 2;
-    numerator2 = 2;
-    denominator2 = 3; 
+    numerator2 = 1;
+    denominator2 = 2; 
 
     //if the c-string can hold at least the characteristic
     if(add(characteristic1, numerator1, denominator1, characteristic2, numerator2, denominator2, answer, 10))
@@ -114,15 +114,14 @@ bool add(int characteristic1, int numerator1, int denominator1, int characterist
     resultNumerator = numerator1 + numerator2; 
 
     //convert the improper fraction if necessary
-    if (resultNumerator > resultDenominator) {
+    if (resultNumerator >= resultDenominator) {
         resultCharacteristic += resultNumerator / resultDenominator; 
         resultNumerator = resultNumerator % resultDenominator;
     }
     resultCharacteristic += characteristic1 + characteristic2; 
-
     int characteristicLength = countDigit(resultCharacteristic);
     //if the restult is too large, return false 
-    if (characteristicLength > len) {
+    if (characteristicLength > len - 1) {
         cout << "Error: the characteristic is too large for the array" << endl; 
         return false; 
     //else convert the characteristics into chars, digit by digit
@@ -130,29 +129,32 @@ bool add(int characteristic1, int numerator1, int denominator1, int characterist
         for (int i = characteristicLength; i > 0; i--) {
             //gets the first digit
             int digit = resultCharacteristic / pow(10, i-1); 
-            cout << digit << endl; 
             //this effectively converts the digit into a char
-            char cDigit = '0' + digit; 
-            result[resultIndex] = cDigit; 
+            result[resultIndex] = '0' + digit; 
             //takes the remainder of the digits to be used in the next iteration of the loop
-            resultCharacteristic = resultCharacteristic % resultCharacteristic / pow(10, i-1);
+            resultCharacteristic = resultCharacteristic % pow(10, i-1);
             resultIndex++; 
         }
     }
 
-    result[resultIndex] = '.';
-    resultIndex++;
+    //if the numerator is zero, that means the calculation has no fraction and only the characteristic, meaning no decimal is added
+    //the second condition is to see if there is room left in the array for a decimal
+    if (resultNumerator != 0 and resultIndex < len - 1) {
+        result[resultIndex] = '.';
+        resultIndex++;
+    
+        while (resultNumerator != 0 and resultIndex < len - 1) {
+            resultNumerator *= 10;
+            cout << resultNumerator << endl;
+            cout << resultIndex << endl; 
+            int digit = resultNumerator / resultDenominator; 
+            result[resultIndex] = '0' + digit; 
+            resultIndex++;
+            resultNumerator = resultNumerator % resultDenominator;
+        }
+    } 
+    cout << resultIndex << endl; 
     result[resultIndex] = '\0';
-    // result[1] = '.';
-    // result[2] = '1';
-    // result[3] = '6';
-    // result[4] = '6';
-    // result[5] = '6';
-    // result[6] = '6';
-    // result[7] = '6';
-    // result[8] = '6';
-    // result[9] = '\0';
-
     return true;
 }
 //--
@@ -192,23 +194,23 @@ int LCM(int a, int b)
     int smallest = min(a, b);
     //loop finds the first multiple of the greater number that is divisible by the smaller number
     for (int i = greater; ; i += greater) {
-        if (i % smallest  == 0)
+        if (i % smallest == 0)
             return i;
     }
 }
 
 //takes in a number, returns number of digits
 int countDigit(int num) {
-    // Base case
+    // base case
     if (num == 0) {
         return 1;
     }
     int count = 0;
-    // Iterate until num has digits remaining
+    // iterate until num has digits remaining
     while (num != 0) {
-        // Remove rightmost digit
+        // remove rightmost digit
         num = num / 10;
-        // Increment digit count by 1
+        // increment digit count by 1
         count++;
   }
   return count;
