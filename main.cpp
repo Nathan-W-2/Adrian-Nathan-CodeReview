@@ -92,10 +92,33 @@ bool mantissa(const char numString[], int& numerator, int& denominator)
 //--
 bool add(int characteristic1, int numerator1, int denominator1, int characteristic2, int numerator2, int denominator2, char result[], int len)
 {
+    //variables to keep an ongoing calculation to eventually convert to a string
+    int resultCharacteristic = 0; 
+    int resultNumerator = 0; 
+    int resultDenominator = 0; 
     //if denominators are different, we must cross multiply the fractions
     if (denominator1 != denominator2) {
-        cout << LCM(denominator1, denominator2) << endl;
+        int lcm = LCM(denominator1, denominator2);
+        numerator1 *= denominator2;
+        numerator2 *= denominator1; 
+        resultDenominator = lcm; 
     }
+    //otherwise the denominator is arbitrarily assigned of the inputted denominators
+    else {
+        resultDenominator = denominator1; 
+    }
+    resultNumerator = numerator1 + numerator2; 
+
+    //convert the improper fraction if necessary
+    if (resultNumerator > resultDenominator) {
+        resultCharacteristic += resultNumerator / resultDenominator; 
+        resultNumerator = resultNumerator % resultDenominator;
+    }
+    resultCharacteristic += characteristic1 + characteristic2; 
+    cout << resultCharacteristic << endl; 
+    cout << resultNumerator << endl; 
+    cout << resultDenominator << endl; 
+
     result[0] = '4';
     result[1] = '.';
     result[2] = '1';
@@ -144,8 +167,25 @@ int LCM(int a, int b)
 {
     int greater = max(a, b);
     int smallest = min(a, b);
+    //loop finds the first multiple of the greater number that is divisible by the smaller number
     for (int i = greater; ; i += greater) {
         if (i % smallest  == 0)
             return i;
     }
+}
+
+int countDigit(int num) {
+    // Base case
+    if (num == 0) {
+        return 1;
+    }
+    int count = 0;
+    // Iterate until num has digits remaining
+    while (num != 0) {
+        // Remove rightmost digit
+        num = num / 10;
+        // Increment digit count by 1
+        count++;
+  }
+  return count;
 }
