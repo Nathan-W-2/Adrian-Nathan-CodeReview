@@ -13,6 +13,8 @@ bool multiply(int characteristic1, int numerator1, int denominator1, int charact
 bool divide(int characteristic1, int numerator1, int denominator1, int characteristic2, int numerator2, int denominator2, char result[], int len);
 
 int LCM(int a, int b);
+int countDigit(int num);
+int pow(int base, int power);
 
 int main()
 {
@@ -41,7 +43,7 @@ int main()
     int characteristic2, numerator2, denominator2;
 
     //initialize the values
-    characteristic1 = 1;
+    characteristic1 = 10;
     numerator1 = 1;
     denominator1 = 2;
 
@@ -96,6 +98,8 @@ bool add(int characteristic1, int numerator1, int denominator1, int characterist
     int resultCharacteristic = 0; 
     int resultNumerator = 0; 
     int resultDenominator = 0; 
+    //will be used throuought the function index through the array
+    int resultIndex = 0; 
     //if denominators are different, we must cross multiply the fractions
     if (denominator1 != denominator2) {
         int lcm = LCM(denominator1, denominator2);
@@ -115,20 +119,39 @@ bool add(int characteristic1, int numerator1, int denominator1, int characterist
         resultNumerator = resultNumerator % resultDenominator;
     }
     resultCharacteristic += characteristic1 + characteristic2; 
-    cout << resultCharacteristic << endl; 
-    cout << resultNumerator << endl; 
-    cout << resultDenominator << endl; 
 
-    result[0] = '4';
-    result[1] = '.';
-    result[2] = '1';
-    result[3] = '6';
-    result[4] = '6';
-    result[5] = '6';
-    result[6] = '6';
-    result[7] = '6';
-    result[8] = '6';
-    result[9] = '\0';
+    int characteristicLength = countDigit(resultCharacteristic);
+    //if the restult is too large, return false 
+    if (characteristicLength > len) {
+        cout << "Error: the characteristic is too large for the array" << endl; 
+        return false; 
+    //else convert the characteristics into chars, digit by digit
+    } else {
+        for (int i = characteristicLength; i > 0; i--) {
+            //gets the first digit
+            int digit = resultCharacteristic / pow(10, i-1); 
+            cout << digit << endl; 
+            //this effectively converts the digit into a char
+            char cDigit = '0' + digit; 
+            result[resultIndex] = cDigit; 
+            //takes the remainder of the digits to be used in the next iteration of the loop
+            resultCharacteristic = resultCharacteristic % resultCharacteristic / pow(10, i-1);
+            resultIndex++; 
+        }
+    }
+
+    result[resultIndex] = '.';
+    resultIndex++;
+    result[resultIndex] = '\0';
+    // result[1] = '.';
+    // result[2] = '1';
+    // result[3] = '6';
+    // result[4] = '6';
+    // result[5] = '6';
+    // result[6] = '6';
+    // result[7] = '6';
+    // result[8] = '6';
+    // result[9] = '\0';
 
     return true;
 }
@@ -174,6 +197,7 @@ int LCM(int a, int b)
     }
 }
 
+//takes in a number, returns number of digits
 int countDigit(int num) {
     // Base case
     if (num == 0) {
@@ -188,4 +212,12 @@ int countDigit(int num) {
         count++;
   }
   return count;
+}
+
+int pow(int base, int power) {
+    int product = 1; 
+    for (int i = 0; i < power; i++) {
+        product *= base; 
+    }
+    return product; 
 }
