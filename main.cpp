@@ -1,4 +1,3 @@
-
 #include <iostream>
 using namespace std;
 
@@ -15,6 +14,9 @@ bool divide(int characteristic1, int numerator1, int denominator1, int character
 int LCM(int a, int b);
 int countDigit(int num);
 int pow(int base, int power);
+int abs(int num);
+
+bool toString(int characteristic, int numerator, int denominator, char result[], int len);
 
 int main()
 {
@@ -43,13 +45,13 @@ int main()
     int characteristic2, numerator2, denominator2;
 
     //initialize the values
-    characteristic1 = 28;
+    characteristic1 = -2800;
     numerator1 = -18;
-    denominator1 = -1234567;
+    denominator1 = -5;
 
     characteristic2 = 58;
     numerator2 = 18;
-    denominator2 = 5; 
+    denominator2 = 10; 
 
     //if the c-string can hold at least the characteristic
     if(add(characteristic1, numerator1, denominator1, characteristic2, numerator2, denominator2, answer, 10))
@@ -98,8 +100,6 @@ bool add(int characteristic1, int numerator1, int denominator1, int characterist
     int resultCharacteristic = 0; 
     int resultNumerator = 0; 
     int resultDenominator = 0; 
-    //will be used throuought the function index through the array
-    int resultIndex = 0; 
     //make sure only the numerators can be negative
     if (denominator1 < 0) {
         numerator1 = -numerator1; 
@@ -123,79 +123,18 @@ bool add(int characteristic1, int numerator1, int denominator1, int characterist
     else {
         resultDenominator = denominator1; 
     }
-    // cout << numerator1 << endl;
-    // cout << numerator2 << endl;
-    // cout << resultDenominator << endl;
     resultNumerator += characteristic1 * resultDenominator;
     resultNumerator += characteristic2 * resultDenominator;
-    // cout << resultNumerator << endl;
-    // cout << numerator1 + numerator2 << endl;
     resultNumerator += numerator1 + numerator2;
     
-    // cout << resultNumerator << endl;
-    // cout << resultDenominator << endl;
+    //(todo: numerator can get too large if both characteristic and numerator are large, causing overflow)
     //convert the improper fraction if necessary
     if (abs(resultNumerator) >= resultDenominator) {
         resultCharacteristic += resultNumerator / resultDenominator; 
         resultNumerator = resultNumerator % resultDenominator;
-         
-        // cout << resultNumerator << endl;
-        // cout << resultCharacteristic << endl;
     }
-    // cout << resultCharacteristic << endl;
-    
-    //get the length of the characteristicLength in terms of digits 
-    int characteristicLength = countDigit(resultCharacteristic);
-    //if the number is negative, we must account that the string must have room for a negative sign
-    if (resultCharacteristic < 0 or resultNumerator < 0 ) {
-        result[resultIndex] = '-';
-        resultIndex++;
-        //the number can be converted to positive now that it has been accounted for
-        if (resultCharacteristic < 0) {
-            resultCharacteristic = -resultCharacteristic; 
-        }
-        if (resultNumerator < 0) {
-            resultNumerator = -resultNumerator; 
-        }
-    }
-    //if the result is too large, return false 
-    // cout << resultIndex << endl;
-    if (characteristicLength + resultIndex > len - 1) {
-        cout << "Error: the characteristic is too large for the array" << endl; 
-        return false; 
-    //else convert the characteristics into chars, digit by digit
-    } else {
-        for (int i = characteristicLength; i > 0; i--) {
-            //gets the first digit
-            // cout << resultCharacteristic << endl;
-            int digit = resultCharacteristic / pow(10, i-1); 
-            //this effectively converts the digit into a char
-            result[resultIndex] = '0' + digit; 
-            //takes the remainder of the digits to be used in the next iteration of the loop
-            resultCharacteristic = resultCharacteristic % pow(10, i-1);
-            resultIndex++; 
-        }
-    }
-
-    //if the numerator is zero, that means the calculation has no fraction and only the characteristic, meaning no decimal is added
-    //the second condition is to see if there is room left in the array for a decimal
-    if (resultNumerator != 0 and resultIndex < len - 2) {
-        result[resultIndex] = '.';
-        resultIndex++;
-    
-        while (resultNumerator != 0 and resultIndex < len - 1) {
-            resultNumerator *= 10;
-            // cout << resultNumerator << endl;
-            // cout << resultIndex << endl; 
-            int digit = resultNumerator / resultDenominator; 
-            result[resultIndex] = '0' + digit; 
-            resultIndex++;
-            resultNumerator = resultNumerator % resultDenominator;
-        }
-    } 
-    // cout << resultIndex << endl; 
-    result[resultIndex] = '\0';
-    return true;
+    //toString() returns a bool
+    return toString(resultCharacteristic, resultNumerator, resultDenominator, result, len);
 }
 //--
 bool subtract(int characteristic1, int numerator1, int denominator1, int characteristic2, int numerator2, int denominator2, char result[], int len)
@@ -270,4 +209,61 @@ int abs(int num) {
       } else {
         return -num;
       }
+}
+
+bool toString(int characteristic, int numerator, int denominator, char result[], int len) {
+    //will be used throuought the function index through the array
+    int resultIndex = 0; 
+    //get the length of the characteristicLength in terms of digits 
+    int characteristicLength = countDigit(characteristic);
+    //if the number is negative, we must account that the string must have room for a negative sign
+    if (characteristic < 0 or numerator < 0 ) {
+        result[resultIndex] = '-';
+        resultIndex++;
+        //the number can be converted to positive now that it has been accounted for
+        if (characteristic < 0) {
+            characteristic = -characteristic; 
+        }
+        if (numerator < 0) {
+            numerator = -numerator; 
+        }
+    }
+    //if the result is too large, return false 
+    // cout << resultIndex << endl;
+    if (characteristicLength + resultIndex > len - 1) {
+        cout << "Error: the characteristic is too large for the array" << endl; 
+        return false; 
+    //else convert the characteristics into chars, digit by digit
+    } else {
+        for (int i = characteristicLength; i > 0; i--) {
+            //gets the first digit
+            // cout << characteristic << endl;
+            int digit = characteristic / pow(10, i-1); 
+            //this effectively converts the digit into a char
+            result[resultIndex] = '0' + digit; 
+            //takes the remainder of the digits to be used in the next iteration of the loop
+            characteristic = characteristic % pow(10, i-1);
+            resultIndex++; 
+        }
+    }
+
+    //if the numerator is zero, that means the calculation has no fraction and only the characteristic, meaning no decimal is added
+    //the second condition is to see if there is room left in the array for a decimal
+    if (numerator != 0 and resultIndex < len - 2) {
+        result[resultIndex] = '.';
+        resultIndex++;
+    
+        while (numerator != 0 and resultIndex < len - 1) {
+            numerator *= 10;
+            // cout << numerator << endl;
+            // cout << resultIndex << endl; 
+            int digit = numerator / denominator; 
+            result[resultIndex] = '0' + digit; 
+            resultIndex++;
+            numerator = numerator % denominator;
+        }
+    } 
+    // cout << resultIndex << endl; 
+    result[resultIndex] = '\0';
+    return true; 
 }
