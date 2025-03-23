@@ -15,8 +15,9 @@ int LCM(int a, int b);
 int countDigit(int num);
 int pow(int base, int power);
 int abs(int num);
-
 bool toString(int characteristic, int numerator, int denominator, char result[], int len);
+void changeDenominators(int& numerator1, int& denominator1, int& numerator2, int& denominator2, int& resultDenominator);
+void improperToMixed(int& resultNumerator, int resultDenominator, int& resultCharacteristic); 
 
 int main()
 {
@@ -110,39 +111,16 @@ bool add(int characteristic1, int numerator1, int denominator1, int characterist
     int resultCharacteristic = 0; 
     int resultNumerator = 0; 
     int resultDenominator = 0; 
-    //make sure only the numerators can be negative
-    if (denominator1 < 0) {
-        numerator1 = -numerator1; 
-        denominator1 = -denominator1; 
-    }
-    if (denominator2 < 0) {
-        numerator2 = -numerator2; 
-        denominator2 = -denominator2; 
-    }
-    //if denominators are different, we must cross multiply the fractions
-    if (denominator1 != denominator2) {
-        int lcm = LCM(denominator1, denominator2);
-        // cout << lcm << endl; 
-        numerator1 *= lcm / denominator1;
-        numerator2 *= lcm / denominator2; 
-        // cout << numerator1 << endl;
-        // cout << numerator2 << endl;
-        resultDenominator = lcm; 
-    }
-    //otherwise the denominator is arbitrarily assigned of the inputted denominators
-    else {
-        resultDenominator = denominator1; 
-    }
+    //make sure only the numerators can be negative and 
+    changeDenominators(numerator1, denominator1, numerator2, denominator2, resultDenominator);
+
     resultNumerator += characteristic1 * resultDenominator;
     resultNumerator += characteristic2 * resultDenominator;
     resultNumerator += numerator1 + numerator2;
     
     //(todo: numerator can get too large if both characteristic and numerator are large, causing overflow)
     //convert the improper fraction if necessary
-    if (abs(resultNumerator) >= resultDenominator) {
-        resultCharacteristic += resultNumerator / resultDenominator; 
-        resultNumerator = resultNumerator % resultDenominator;
-    }
+    improperToMixed(resultNumerator, resultDenominator, resultCharacteristic);
     //toString() returns a bool
     return toString(resultCharacteristic, resultNumerator, resultDenominator, result, len);
 }
@@ -154,25 +132,8 @@ bool subtract(int characteristic1, int numerator1, int denominator1, int charact
     int resultNumerator = 0; 
     int resultDenominator = 0; 
     //make sure only the numerators can be negative
-    if (denominator1 < 0) {
-        numerator1 = -numerator1; 
-        denominator1 = -denominator1; 
-    }
-    if (denominator2 < 0) {
-        numerator2 = -numerator2; 
-        denominator2 = -denominator2; 
-    }
-    //if denominators are different, we must cross multiply the fractions
-    if (denominator1 != denominator2) {
-        int lcm = LCM(denominator1, denominator2);
-        numerator1 *= lcm / denominator1;
-        numerator2 *= lcm / denominator2; 
-        resultDenominator = lcm; 
-    }
-    //otherwise the denominator is arbitrarily assigned of the inputted denominators
-    else {
-        resultDenominator = denominator1; 
-    }
+    changeDenominators(numerator1, denominator1, numerator2, denominator2, resultDenominator);
+
     resultNumerator += characteristic1 * resultDenominator;
     resultNumerator += numerator1;
     resultNumerator -= characteristic2 * resultDenominator;
@@ -180,11 +141,7 @@ bool subtract(int characteristic1, int numerator1, int denominator1, int charact
     
     //(todo: numerator can get too large if both characteristic and numerator are large, causing overflow)
     //convert the improper fraction if necessary
-    if (abs(resultNumerator) >= resultDenominator) {
-        resultCharacteristic += resultNumerator / resultDenominator; 
-        resultNumerator = resultNumerator % resultDenominator;
-    }
-    //toString() returns a bool
+    improperToMixed(resultNumerator, resultDenominator, resultCharacteristic);
     return toString(resultCharacteristic, resultNumerator, resultDenominator, result, len);
     return true;
 }
@@ -311,4 +268,36 @@ bool toString(int characteristic, int numerator, int denominator, char result[],
     // cout << resultIndex << endl; 
     result[resultIndex] = '\0';
     return true; 
+}
+
+void changeDenominators(int& numerator1, int& denominator1, int& numerator2, int& denominator2, int& resultDenominator) {
+    if (denominator1 < 0) {
+        numerator1 = -numerator1; 
+        denominator1 = -denominator1; 
+    }
+    if (denominator2 < 0) {
+        numerator2 = -numerator2; 
+        denominator2 = -denominator2; 
+    }
+    //if denominators are different, we must cross multiply the fractions
+    if (denominator1 != denominator2) {
+        int lcm = LCM(denominator1, denominator2);
+        // cout << lcm << endl; 
+        numerator1 *= lcm / denominator1;
+        numerator2 *= lcm / denominator2; 
+        // cout << numerator1 << endl;
+        // cout << numerator2 << endl;
+        resultDenominator = lcm; 
+    }
+    //otherwise the denominator is arbitrarily assigned of the inputted denominators
+    else {
+        resultDenominator = denominator1; 
+    }
+}
+
+void improperToMixed(int& resultNumerator, int resultDenominator, int& resultCharacteristic) {
+    if (abs(resultNumerator) >= resultDenominator) {
+        resultCharacteristic += resultNumerator / resultDenominator; 
+        resultNumerator = resultNumerator % resultDenominator;
+    }
 }
