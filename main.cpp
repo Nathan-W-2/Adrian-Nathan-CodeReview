@@ -43,13 +43,13 @@ int main()
     int characteristic2, numerator2, denominator2;
 
     //initialize the values
-    characteristic1 = 0;
-    numerator1 = 1;
-    denominator1 = 3;
+    characteristic1 = 28;
+    numerator1 = -18;
+    denominator1 = -1234567;
 
-    characteristic2 = 130000000;
-    numerator2 = -1;
-    denominator2 = 2; 
+    characteristic2 = 58;
+    numerator2 = 18;
+    denominator2 = 5; 
 
     //if the c-string can hold at least the characteristic
     if(add(characteristic1, numerator1, denominator1, characteristic2, numerator2, denominator2, answer, 10))
@@ -100,12 +100,23 @@ bool add(int characteristic1, int numerator1, int denominator1, int characterist
     int resultDenominator = 0; 
     //will be used throuought the function index through the array
     int resultIndex = 0; 
+    //make sure only the numerators can be negative
+    if (denominator1 < 0) {
+        numerator1 = -numerator1; 
+        denominator1 = -denominator1; 
+    }
+    if (denominator2 < 0) {
+        numerator2 = -numerator2; 
+        denominator2 = -denominator2; 
+    }
     //if denominators are different, we must cross multiply the fractions
     if (denominator1 != denominator2) {
         int lcm = LCM(denominator1, denominator2);
         // cout << lcm << endl; 
-        numerator1 *= denominator2;
-        numerator2 *= denominator1; 
+        numerator1 *= lcm / denominator1;
+        numerator2 *= lcm / denominator2; 
+        // cout << numerator1 << endl;
+        // cout << numerator2 << endl;
         resultDenominator = lcm; 
     }
     //otherwise the denominator is arbitrarily assigned of the inputted denominators
@@ -117,17 +128,19 @@ bool add(int characteristic1, int numerator1, int denominator1, int characterist
     // cout << resultDenominator << endl;
     resultNumerator += characteristic1 * resultDenominator;
     resultNumerator += characteristic2 * resultDenominator;
+    // cout << resultNumerator << endl;
+    // cout << numerator1 + numerator2 << endl;
     resultNumerator += numerator1 + numerator2;
     
-    cout << resultNumerator << endl;
-    cout << resultDenominator << endl;
+    // cout << resultNumerator << endl;
+    // cout << resultDenominator << endl;
     //convert the improper fraction if necessary
     if (abs(resultNumerator) >= resultDenominator) {
         resultCharacteristic += resultNumerator / resultDenominator; 
         resultNumerator = resultNumerator % resultDenominator;
          
-        cout << resultNumerator << endl;
-        cout << resultCharacteristic << endl;
+        // cout << resultNumerator << endl;
+        // cout << resultCharacteristic << endl;
     }
     // cout << resultCharacteristic << endl;
     
