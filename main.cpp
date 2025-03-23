@@ -45,11 +45,11 @@ int main()
     int characteristic2, numerator2, denominator2;
 
     //initialize the values
-    characteristic1 = -2800;
+    characteristic1 = 50;
     numerator1 = -18;
     denominator1 = -5;
 
-    characteristic2 = 58;
+    characteristic2 = 28;
     numerator2 = 18;
     denominator2 = 10; 
 
@@ -63,6 +63,16 @@ int main()
     {
         //display error message
         cout<<"Error on add"<<endl;
+    }
+    if(subtract(characteristic1, numerator1, denominator1, characteristic2, numerator2, denominator2, answer, 10))
+    {
+        //display string with answer 4.1666666 (cout stops printing at the null terminating character)
+        cout<<"Answer: "<<answer<<endl;
+    }
+    else
+    {
+        //display error message
+        cout<<"Error on subtract"<<endl;
     }
 
     if(divide(characteristic1, numerator1, denominator1, characteristic2, numerator2, denominator2, answer, 10))
@@ -139,8 +149,43 @@ bool add(int characteristic1, int numerator1, int denominator1, int characterist
 //--
 bool subtract(int characteristic1, int numerator1, int denominator1, int characteristic2, int numerator2, int denominator2, char result[], int len)
 {
-    //hard coded return value to make the code compile
-    //you will have to come up with an algorithm to subtract the two numbers
+    //variables to keep an ongoing calculation to eventually convert to a string
+    int resultCharacteristic = 0; 
+    int resultNumerator = 0; 
+    int resultDenominator = 0; 
+    //make sure only the numerators can be negative
+    if (denominator1 < 0) {
+        numerator1 = -numerator1; 
+        denominator1 = -denominator1; 
+    }
+    if (denominator2 < 0) {
+        numerator2 = -numerator2; 
+        denominator2 = -denominator2; 
+    }
+    //if denominators are different, we must cross multiply the fractions
+    if (denominator1 != denominator2) {
+        int lcm = LCM(denominator1, denominator2);
+        numerator1 *= lcm / denominator1;
+        numerator2 *= lcm / denominator2; 
+        resultDenominator = lcm; 
+    }
+    //otherwise the denominator is arbitrarily assigned of the inputted denominators
+    else {
+        resultDenominator = denominator1; 
+    }
+    resultNumerator += characteristic1 * resultDenominator;
+    resultNumerator += numerator1;
+    resultNumerator -= characteristic2 * resultDenominator;
+    resultNumerator -= numerator2;
+    
+    //(todo: numerator can get too large if both characteristic and numerator are large, causing overflow)
+    //convert the improper fraction if necessary
+    if (abs(resultNumerator) >= resultDenominator) {
+        resultCharacteristic += resultNumerator / resultDenominator; 
+        resultNumerator = resultNumerator % resultDenominator;
+    }
+    //toString() returns a bool
+    return toString(resultCharacteristic, resultNumerator, resultDenominator, result, len);
     return true;
 }
 //--
