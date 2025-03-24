@@ -46,13 +46,13 @@ int main()
     int characteristic2, numerator2, denominator2;
 
     //initialize the values
-    characteristic1 = 50;
-    numerator1 = -18;
-    denominator1 = -5;
+    characteristic1 = 1;
+    numerator1 = 1;
+    denominator1 = 2;
 
-    characteristic2 = 28;
-    numerator2 = 18;
-    denominator2 = 10; 
+    characteristic2 = 2;
+    numerator2 = 2;
+    denominator2 = 3; 
 
     //if the c-string can hold at least the characteristic
     if(add(characteristic1, numerator1, denominator1, characteristic2, numerator2, denominator2, answer, 10))
@@ -66,6 +66,16 @@ int main()
         cout<<"Error on add"<<endl;
     }
     if(subtract(characteristic1, numerator1, denominator1, characteristic2, numerator2, denominator2, answer, 10))
+    {
+        //display string with answer 4.1666666 (cout stops printing at the null terminating character)
+        cout<<"Answer: "<<answer<<endl;
+    }
+    else
+    {
+        //display error message
+        cout<<"Error on subtract"<<endl;
+    }
+    if(multiply(characteristic1, numerator1, denominator1, characteristic2, numerator2, denominator2, answer, 10))
     {
         //display string with answer 4.1666666 (cout stops printing at the null terminating character)
         cout<<"Answer: "<<answer<<endl;
@@ -133,7 +143,7 @@ bool subtract(int characteristic1, int numerator1, int denominator1, int charact
     int resultDenominator = 0; 
     //make sure only the numerators can be negative
     changeDenominators(numerator1, denominator1, numerator2, denominator2, resultDenominator);
-
+    
     resultNumerator += characteristic1 * resultDenominator;
     resultNumerator += numerator1;
     resultNumerator -= characteristic2 * resultDenominator;
@@ -143,29 +153,48 @@ bool subtract(int characteristic1, int numerator1, int denominator1, int charact
     //convert the improper fraction if necessary
     improperToMixed(resultNumerator, resultDenominator, resultCharacteristic);
     return toString(resultCharacteristic, resultNumerator, resultDenominator, result, len);
-    return true;
 }
 //--
 bool multiply(int characteristic1, int numerator1, int denominator1, int characteristic2, int numerator2, int denominator2, char result[], int len)
 {
-    //hard coded return value to make the code compile
-    //you will have to come up with an algorithm to multiply the two numbers
-    return true;
+    //variables to keep an ongoing calculation to eventually convert to a string
+    int resultCharacteristic = 0; 
+    int resultNumerator = 0; 
+    int resultDenominator = 0; 
+    //make sure only the numerators can be negative
+    changeDenominators(numerator1, denominator1, numerator2, denominator2, resultDenominator);
+
+    resultNumerator += characteristic1 * resultDenominator;
+    resultNumerator += numerator1;
+    resultNumerator *= characteristic2 * resultDenominator + numerator2;
+    resultDenominator *= resultDenominator; 
+    //todo: add number simplifier to limit the growth of both numerator and denominator
+    
+    //(todo: numerator can get too large if both characteristic and numerator are large, causing overflow)
+    //convert the improper fraction if necessary
+    improperToMixed(resultNumerator, resultDenominator, resultCharacteristic);
+    return toString(resultCharacteristic, resultNumerator, resultDenominator, result, len);
 }
 //--
 bool divide(int characteristic1, int numerator1, int denominator1, int characteristic2, int numerator2, int denominator2, char result[], int len)
 {
-    //you will have to come up with an algorithm to divide the two numbers
-    //hard coded return value to make the main() work
-    result[0] = '0';
-    result[1] = '.';
-    result[2] = '5';
-    result[3] = '6';
-    result[4] = '2';
-    result[5] = '5';
-    result[6] = '\0';
+    //variables to keep an ongoing calculation to eventually convert to a string
+    int resultCharacteristic = 0; 
+    int resultNumerator = 0; 
+    int resultDenominator = 0; 
+    //make sure only the numerators can be negative
+    changeDenominators(numerator1, denominator1, numerator2, denominator2, resultDenominator);
+
+    resultNumerator += characteristic1 * resultDenominator;
+    resultNumerator += numerator1;
+    resultNumerator *= resultDenominator; 
+    resultDenominator *= characteristic2 * resultDenominator + numerator2; 
+    //todo: add number simplifier to limit the growth of both numerator and denominator
     
-    return true;
+    //(todo: numerator can get too large if both characteristic and numerator are large, causing overflow)
+    //convert the improper fraction if necessary
+    improperToMixed(resultNumerator, resultDenominator, resultCharacteristic);
+    return toString(resultCharacteristic, resultNumerator, resultDenominator, result, len);
 }
 
 //takes two ints and returns their least common multiple 
@@ -231,7 +260,6 @@ bool toString(int characteristic, int numerator, int denominator, char result[],
         }
     }
     //if the result is too large, return false 
-    // cout << resultIndex << endl;
     if (characteristicLength + resultIndex > len - 1) {
         cout << "Error: the characteristic is too large for the array" << endl; 
         return false; 
@@ -239,7 +267,6 @@ bool toString(int characteristic, int numerator, int denominator, char result[],
     } else {
         for (int i = characteristicLength; i > 0; i--) {
             //gets the first digit
-            // cout << characteristic << endl;
             int digit = characteristic / pow(10, i-1); 
             //this effectively converts the digit into a char
             result[resultIndex] = '0' + digit; 
@@ -257,15 +284,12 @@ bool toString(int characteristic, int numerator, int denominator, char result[],
     
         while (numerator != 0 and resultIndex < len - 1) {
             numerator *= 10;
-            // cout << numerator << endl;
-            // cout << resultIndex << endl; 
             int digit = numerator / denominator; 
             result[resultIndex] = '0' + digit; 
             resultIndex++;
             numerator = numerator % denominator;
         }
     } 
-    // cout << resultIndex << endl; 
     result[resultIndex] = '\0';
     return true; 
 }
@@ -282,11 +306,8 @@ void changeDenominators(int& numerator1, int& denominator1, int& numerator2, int
     //if denominators are different, we must cross multiply the fractions
     if (denominator1 != denominator2) {
         int lcm = LCM(denominator1, denominator2);
-        // cout << lcm << endl; 
         numerator1 *= lcm / denominator1;
         numerator2 *= lcm / denominator2; 
-        // cout << numerator1 << endl;
-        // cout << numerator2 << endl;
         resultDenominator = lcm; 
     }
     //otherwise the denominator is arbitrarily assigned of the inputted denominators
