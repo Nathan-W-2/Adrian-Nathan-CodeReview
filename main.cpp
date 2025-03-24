@@ -16,8 +16,8 @@ int countDigit(int num);
 int pow(int base, int power);
 int abs(int num);
 bool toString(int characteristic, int numerator, int denominator, char result[], int len);
-void changeDenominators(int& numerator1, int& denominator1, int& numerator2, int& denominator2, int& resultDenominator);
-void improperToMixed(int& resultNumerator, int resultDenominator, int& resultCharacteristic); 
+bool changeDenominators(int& numerator1, int& denominator1, int& numerator2, int& denominator2, int& resultDenominator);
+bool improperToMixed(int& resultNumerator, int resultDenominator, int& resultCharacteristic); 
 bool willOverflowMult(int a, int b);
 bool willOverflowAdd(int a, int b);
 bool willOverflowSub(int a, int b);
@@ -124,14 +124,37 @@ bool add(int characteristic1, int numerator1, int denominator1, int characterist
     int resultCharacteristic = 0; 
     int resultNumerator = 0; 
     int resultDenominator = 0; 
-    //make sure only the numerators can be negative and 
+    //make sure only the numerators can be negative and denominators are the same 
     changeDenominators(numerator1, denominator1, numerator2, denominator2, resultDenominator);
 
+    if (willOverflowMult(characteristic1, resultDenominator)) {
+        cout << "Error: Overflow/Underflow" << endl; 
+        return false; 
+    }
+    if (willOverflowAdd(resultNumerator, characteristic1 * resultDenominator)) {
+        cout << "Error: Overflow/Underflow" << endl; 
+        return false; 
+    }
     resultNumerator += characteristic1 * resultDenominator;
+    if (willOverflowMult(characteristic2, resultDenominator)) {
+        cout << "Error: Overflow/Underflow" << endl; 
+        return false; 
+    }
+    if (willOverflowAdd(resultNumerator, characteristic2 * resultDenominator)) {
+        cout << "Error: Overflow/Underflow" << endl; 
+        return false; 
+    }
     resultNumerator += characteristic2 * resultDenominator;
+    if (willOverflowAdd(numerator1, numerator2)) {
+        cout << "Error: Overflow/Underflow" << endl; 
+        return false; 
+    }
+    if (willOverflowAdd(resultNumerator, numerator1 + numerator2)) {
+        cout << "Error: Overflow/Underflow" << endl; 
+        return false; 
+    }
     resultNumerator += numerator1 + numerator2;
     
-    //(todo: numerator can get too large if both characteristic and numerator are large, causing overflow)
     //convert the improper fraction if necessary
     improperToMixed(resultNumerator, resultDenominator, resultCharacteristic);
     //toString() returns a bool
@@ -146,13 +169,35 @@ bool subtract(int characteristic1, int numerator1, int denominator1, int charact
     int resultDenominator = 0; 
     //make sure only the numerators can be negative
     changeDenominators(numerator1, denominator1, numerator2, denominator2, resultDenominator);
-    
-    resultNumerator += characteristic1 * resultDenominator;
-    resultNumerator += numerator1;
+
+    if (willOverflowMult(characteristic1, resultDenominator)) {
+        cout << "Error: Overflow/Underflow" << endl; 
+        return false; 
+    }
+    if (willOverflowAdd(characteristic1 * resultDenominator, numerator1)) {
+        cout << "Error: Overflow/Underflow" << endl; 
+        return false; 
+    }
+    if (willOverflowAdd(resultNumerator, characteristic1 * resultDenominator + numerator1)) {
+        cout << "Error: Overflow/Underflow" << endl; 
+        return false; 
+    }
+    resultNumerator += characteristic1 * resultDenominator + numerator1;
+    if (willOverflowMult(characteristic2, resultDenominator)) {
+        cout << "Error: Overflow/Underflow" << endl; 
+        return false; 
+    }
+    if (willOverflowSub(resultNumerator, characteristic2 * resultDenominator)) {
+        cout << "Error: Overflow/Underflow" << endl; 
+        return false; 
+    }
     resultNumerator -= characteristic2 * resultDenominator;
+    if (willOverflowSub(resultNumerator, numerator2)) {
+        cout << "Error: Overflow/Underflow" << endl; 
+        return false; 
+    }
     resultNumerator -= numerator2;
     
-    //(todo: numerator can get too large if both characteristic and numerator are large, causing overflow)
     //convert the improper fraction if necessary
     improperToMixed(resultNumerator, resultDenominator, resultCharacteristic);
     return toString(resultCharacteristic, resultNumerator, resultDenominator, result, len);
@@ -167,9 +212,37 @@ bool multiply(int characteristic1, int numerator1, int denominator1, int charact
     //make sure only the numerators can be negative
     changeDenominators(numerator1, denominator1, numerator2, denominator2, resultDenominator);
 
+    if (willOverflowMult(characteristic1, resultDenominator)) {
+        cout << "Error: Overflow/Underflow" << endl; 
+        return false; 
+    }
+    if (willOverflowAdd(resultNumerator, characteristic1 * resultDenominator)) {
+        cout << "Error: Overflow/Underflow" << endl; 
+        return false; 
+    }
     resultNumerator += characteristic1 * resultDenominator;
+    if (willOverflowAdd(resultNumerator, numerator1)) {
+        cout << "Error: Overflow/Underflow" << endl; 
+        return false; 
+    }
     resultNumerator += numerator1;
+    if (willOverflowMult(characteristic2, resultDenominator)) {
+        cout << "Error: Overflow/Underflow" << endl; 
+        return false; 
+    }
+    if (willOverflowAdd(characteristic2 * resultDenominator, numerator2)) {
+        cout << "Error: Overflow/Underflow" << endl; 
+        return false; 
+    }
+    if (willOverflowMult(resultNumerator, characteristic2 * resultDenominator + numerator2)) {
+        cout << "Error: Overflow/Underflow" << endl; 
+        return false; 
+    }
     resultNumerator *= characteristic2 * resultDenominator + numerator2;
+    if (willOverflowMult(resultDenominator, resultDenominator)) {
+        cout << "Error: Overflow/Underflow" << endl; 
+        return false; 
+    }
     resultDenominator *= resultDenominator; 
     //todo: add number simplifier to limit the growth of both numerator and denominator
     
@@ -188,13 +261,40 @@ bool divide(int characteristic1, int numerator1, int denominator1, int character
     //make sure only the numerators can be negative
     changeDenominators(numerator1, denominator1, numerator2, denominator2, resultDenominator);
 
+    if (willOverflowMult(characteristic1, resultDenominator)) {
+        cout << "Error: Overflow/Underflow" << endl; 
+        return false; 
+    }
+    if (willOverflowAdd(resultNumerator, characteristic1 * resultDenominator)) {
+        cout << "Error: Overflow/Underflow" << endl; 
+        return false; 
+    }
     resultNumerator += characteristic1 * resultDenominator;
+    if (willOverflowAdd(resultNumerator, numerator1)) {
+        cout << "Error: Overflow/Underflow" << endl; 
+        return false; 
+    }
     resultNumerator += numerator1;
+    if (willOverflowMult(resultNumerator, resultDenominator)) {
+        cout << "Error: Overflow/Underflow" << endl; 
+        return false; 
+    }
     resultNumerator *= resultDenominator; 
+    if (willOverflowMult(characteristic2, resultDenominator)) {
+        cout << "Error: Overflow/Underflow" << endl; 
+        return false; 
+    }
+    if (willOverflowAdd(characteristic2 * resultDenominator, numerator2)) {
+        cout << "Error: Overflow/Underflow" << endl; 
+        return false; 
+    }
+    if (willOverflowMult(resultDenominator, characteristic2 * resultDenominator + numerator2)) {
+        cout << "Error: Overflow/Underflow" << endl; 
+        return false; 
+    }
     resultDenominator *= characteristic2 * resultDenominator + numerator2; 
     //todo: add number simplifier to limit the growth of both numerator and denominator
     
-    //(todo: numerator can get too large if both characteristic and numerator are large, causing overflow)
     //convert the improper fraction if necessary
     improperToMixed(resultNumerator, resultDenominator, resultCharacteristic);
     return toString(resultCharacteristic, resultNumerator, resultDenominator, result, len);
@@ -207,8 +307,13 @@ int LCM(int a, int b)
     int smallest = min(a, b);
     //loop finds the first multiple of the greater number that is divisible by the smaller number
     for (int i = greater; ; i += greater) {
-        if (i % smallest == 0)
+        if (i % smallest == 0) {
             return i;
+        }
+        if (willOverflowAdd(i, greater)) {
+            cout << "Error: Least common multiple of fractions is larger than INT_MAX" << endl; 
+            return -1; 
+        }
     }
 }
 
@@ -232,6 +337,10 @@ int countDigit(int num) {
 int pow(int base, int power) {
     int product = 1; 
     for (int i = 0; i < power; i++) {
+        if (willOverflowMult(product, base)) {
+            cout << "Error: Overflow/Underflow in pow()" << endl; 
+            throw "Error: Overflow/Underflow in pow()"; 
+        }
         product *= base; 
     }
     return product; 
@@ -286,6 +395,10 @@ bool toString(int characteristic, int numerator, int denominator, char result[],
         resultIndex++;
     
         while (numerator != 0 and resultIndex < len - 1) {
+            if (willOverflowAdd(numerator, 10)) {
+                cout << "Error: Overflow/Underflow in toString()" << endl; 
+                return false; 
+            }
             numerator *= 10;
             int digit = numerator / denominator; 
             result[resultIndex] = '0' + digit; 
@@ -297,7 +410,7 @@ bool toString(int characteristic, int numerator, int denominator, char result[],
     return true; 
 }
 
-void changeDenominators(int& numerator1, int& denominator1, int& numerator2, int& denominator2, int& resultDenominator) {
+bool changeDenominators(int& numerator1, int& denominator1, int& numerator2, int& denominator2, int& resultDenominator) {
     if (denominator1 < 0) {
         numerator1 = -numerator1; 
         denominator1 = -denominator1; 
@@ -309,7 +422,19 @@ void changeDenominators(int& numerator1, int& denominator1, int& numerator2, int
     //if denominators are different, we must cross multiply the fractions
     if (denominator1 != denominator2) {
         int lcm = LCM(denominator1, denominator2);
+        //if lcm is -1, that means an error occured in LCM() and we exit the function
+        if (lcm == -1) {
+            return false; 
+        }
+        if (willOverflowMult(numerator1, lcm / denominator1)) {
+            cout << "Error: Overflow/Underflow in changeDenominators()" << endl; 
+            return false; 
+        }
         numerator1 *= lcm / denominator1;
+        if (willOverflowMult(numerator2, lcm / denominator2)) {
+            cout << "Error: Overflow/Underflow in changeDenominators()" << endl; 
+            return false; 
+        }
         numerator2 *= lcm / denominator2; 
         resultDenominator = lcm; 
     }
@@ -317,34 +442,34 @@ void changeDenominators(int& numerator1, int& denominator1, int& numerator2, int
     else {
         resultDenominator = denominator1; 
     }
+    return true; 
 }
 
-void improperToMixed(int& resultNumerator, int resultDenominator, int& resultCharacteristic) {
+bool improperToMixed(int& resultNumerator, int resultDenominator, int& resultCharacteristic) {
     if (abs(resultNumerator) >= resultDenominator) {
+        // cout << resultCharacteristic << endl; 
+        // cout << resultNumerator / resultDenominator << endl; 
+        if (willOverflowAdd(resultCharacteristic, resultNumerator / resultDenominator)) {
+            cout << "Error: Overflow/Underflow in improperToMixed()" << endl; 
+            return false; 
+        }
         resultCharacteristic += resultNumerator / resultDenominator; 
         resultNumerator = resultNumerator % resultDenominator;
     }
+    return true;
 }
 
 bool willOverflowMult(int a, int b) {
-
-    bool retVal = false; 
-    // if -1 is multiplied by the intmin, the result will be one more than the INT_MAX, causing overflow
-    if ((a == -1 && b == INT_MIN) or (b == -1 && a == INT_MIN)) {
-        retVal = true; 
-    } 
-    // the inequalities of a * b > INT_MAX and a * b < INT_MIN rewritten so it can be calculated without overflowing normally
-    if (b != 0 && a > INT_MAX / b) {
-        retVal = true; 
-    } // `a * b` would overflow
-    if (b != 0 && a < INT_MIN / b) {
-        retVal = true; 
-    }
-    return retVal;
+    if (a == 0 || b == 0)
+      return false;
+    long long result = a * b;
+    if (a == result / b)
+      return false;
+    else
+      return true;
 }
 
 bool willOverflowAdd(int a, int b) {
-
     bool retVal = false; 
     // the inequalities of a + b > INT_MAX and a + b < INT_MIN rewritten so it can be calculated without overflowing normally
     if ((b > 0 && a > INT_MAX - b) or (b < 0 && a < INT_MIN - b)) {
@@ -354,7 +479,6 @@ bool willOverflowAdd(int a, int b) {
 }
 
 bool willOverflowSub(int a, int b) {
-
     bool retVal = false; 
     // the inequalities of a - b > INT_MAX and a - b < INT_MIN rewritten so it can be calculated without overflowing normally
     if ((b < 0 && a > INT_MAX + b) or (b > 0 && a < INT_MIN + b)) {
