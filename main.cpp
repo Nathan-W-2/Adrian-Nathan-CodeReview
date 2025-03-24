@@ -18,6 +18,9 @@ int abs(int num);
 bool toString(int characteristic, int numerator, int denominator, char result[], int len);
 void changeDenominators(int& numerator1, int& denominator1, int& numerator2, int& denominator2, int& resultDenominator);
 void improperToMixed(int& resultNumerator, int resultDenominator, int& resultCharacteristic); 
+bool willOverflowMult(int a, int b);
+bool willOverflowAdd(int a, int b);
+bool willOverflowSub(int a, int b);
 
 int main()
 {
@@ -321,4 +324,41 @@ void improperToMixed(int& resultNumerator, int resultDenominator, int& resultCha
         resultCharacteristic += resultNumerator / resultDenominator; 
         resultNumerator = resultNumerator % resultDenominator;
     }
+}
+
+bool willOverflowMult(int a, int b) {
+
+    bool retVal = false; 
+    // if -1 is multiplied by the intmin, the result will be one more than the INT_MAX, causing overflow
+    if ((a == -1 && b == INT_MIN) or (b == -1 && a == INT_MIN)) {
+        retVal = true; 
+    } 
+    // the inequalities of a * b > INT_MAX and a * b < INT_MIN rewritten so it can be calculated without overflowing normally
+    if (b != 0 && a > INT_MAX / b) {
+        retVal = true; 
+    } // `a * b` would overflow
+    if (b != 0 && a < INT_MIN / b) {
+        retVal = true; 
+    }
+    return retVal;
+}
+
+bool willOverflowAdd(int a, int b) {
+
+    bool retVal = false; 
+    // the inequalities of a + b > INT_MAX and a + b < INT_MIN rewritten so it can be calculated without overflowing normally
+    if ((b > 0 && a > INT_MAX - b) or (b < 0 && a < INT_MIN - b)) {
+        retVal = true; 
+    }
+    return retVal;
+}
+
+bool willOverflowSub(int a, int b) {
+
+    bool retVal = false; 
+    // the inequalities of a - b > INT_MAX and a - b < INT_MIN rewritten so it can be calculated without overflowing normally
+    if ((b < 0 && a > INT_MAX + b) or (b > 0 && a < INT_MIN + b)) {
+        retVal = true; 
+    } 
+    return retVal;
 }
