@@ -52,13 +52,13 @@ int main()
     int characteristic2, numerator2, denominator2;
 
     //initialize the values
-    characteristic1 = 0;
-    numerator1 = 0;
-    denominator1 = 1;
+    characteristic1 = 1;
+    numerator1 = 40;
+    denominator1 = 40000;
 
-    characteristic2 = 0;
-    numerator2 = 0;
-    denominator2 = 1; 
+    characteristic2 = 3;
+    numerator2 = 40;
+    denominator2 = 22501; 
 
     //if the c-string can hold at least the characteristic
     if(add(characteristic1, numerator1, denominator1, characteristic2, numerator2, denominator2, answer, 10))
@@ -133,6 +133,9 @@ bool add(int characteristic1, int numerator1, int denominator1, int characterist
     int resultCharacteristic = 0; 
     int resultNumerator = 0; 
     int resultDenominator = 0; 
+    //reduce the fractions to prevent some cases of overflow
+    reduceFraction(numerator1, denominator1); 
+    reduceFraction(numerator2, denominator2); 
     //make sure only the numerators can be negative and denominators are the same 
     if (!equalizeDenominators(numerator1, denominator1, numerator2, denominator2, resultDenominator)) {
         return false; 
@@ -184,6 +187,9 @@ bool subtract(int characteristic1, int numerator1, int denominator1, int charact
     int resultCharacteristic = 0; 
     int resultNumerator = 0; 
     int resultDenominator = 0; 
+    //reduce the fractions to prevent some cases of overflow
+    reduceFraction(numerator1, denominator1); 
+    reduceFraction(numerator2, denominator2); 
     //make sure only the numerators can be negative
     if (!equalizeDenominators(numerator1, denominator1, numerator2, denominator2, resultDenominator)) {
         return false; 
