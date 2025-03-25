@@ -52,13 +52,13 @@ int main()
     int characteristic2, numerator2, denominator2;
 
     //initialize the values
-    characteristic1 = 1;
-    numerator1 = 1;
-    denominator1 = 2;
+    characteristic1 = 0;
+    numerator1 = 0;
+    denominator1 = 1;
 
-    characteristic2 = 2;
+    characteristic2 = 0;
     numerator2 = 0;
-    denominator2 = 8; 
+    denominator2 = 1; 
 
     //if the c-string can hold at least the characteristic
     if(add(characteristic1, numerator1, denominator1, characteristic2, numerator2, denominator2, answer, 10))
@@ -125,6 +125,10 @@ bool mantissa(const char numString[], int& numerator, int& denominator)
 //--
 bool add(int characteristic1, int numerator1, int denominator1, int characteristic2, int numerator2, int denominator2, char result[], int len)
 {
+    if (denominator1 == 0 or denominator2 == 0) {
+        cout << "Error: Divide by Zero" << endl; 
+        return false; 
+    }
     //variables to keep an ongoing calculation to eventually convert to a string
     int resultCharacteristic = 0; 
     int resultNumerator = 0; 
@@ -172,6 +176,10 @@ bool add(int characteristic1, int numerator1, int denominator1, int characterist
 //--
 bool subtract(int characteristic1, int numerator1, int denominator1, int characteristic2, int numerator2, int denominator2, char result[], int len)
 {
+    if (denominator1 == 0 or denominator2 == 0) {
+        cout << "Error: Divide by Zero" << endl; 
+        return false; 
+    }
     //variables to keep an ongoing calculation to eventually convert to a string
     int resultCharacteristic = 0; 
     int resultNumerator = 0; 
@@ -218,6 +226,10 @@ bool subtract(int characteristic1, int numerator1, int denominator1, int charact
 //--
 bool multiply(int characteristic1, int numerator1, int denominator1, int characteristic2, int numerator2, int denominator2, char result[], int len)
 {
+    if (denominator1 == 0 or denominator2 == 0) {
+        cout << "Error: Divide by Zero" << endl; 
+        return false; 
+    }
     //variables to keep an ongoing calculation to eventually convert to a string
     int resultCharacteristic = 0; 
     int resultNumerator = 0; 
@@ -272,6 +284,14 @@ bool multiply(int characteristic1, int numerator1, int denominator1, int charact
 //--
 bool divide(int characteristic1, int numerator1, int denominator1, int characteristic2, int numerator2, int denominator2, char result[], int len)
 {
+    if (denominator1 == 0 or denominator2 == 0) {
+        cout << "Error: Divide by Zero" << endl; 
+        return false; 
+    }
+    if (characteristic2 == 0 and numerator2 == 0) {
+        cout << "Error: Divide by Zero" << endl; 
+        return false; 
+    }
     //variables to keep an ongoing calculation to eventually convert to a string
     int resultCharacteristic = 0; 
     int resultNumerator = 0; 
