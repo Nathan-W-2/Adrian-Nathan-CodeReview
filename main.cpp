@@ -17,7 +17,8 @@ int countDigit(int num);
 int pow(int base, int power);
 int abs(int num);
 bool toString(int characteristic, int numerator, int denominator, char result[], int len);
-bool changeDenominators(int& numerator1, int& denominator1, int& numerator2, int& denominator2, int& resultDenominator);
+void fixDenominators(int& numerator1, int& denominator1, int& numerator2, int& denominator2);
+bool equalizeDenominators(int& numerator1, int& denominator1, int& numerator2, int& denominator2, int& resultDenominator);
 bool improperToMixed(int& resultNumerator, int resultDenominator, int& resultCharacteristic); 
 bool willOverflowMult(int a, int b);
 bool willOverflowAdd(int a, int b);
@@ -50,13 +51,13 @@ int main()
     int characteristic2, numerator2, denominator2;
 
     //initialize the values
-    characteristic1 = 1;
-    numerator1 = 40;
-    denominator1 = 4000;
+    characteristic1 = -1;
+    numerator1 = 1;
+    denominator1 = -2;
 
-    characteristic2 = 2;
-    numerator2 = 40;
-    denominator2 = 2250; 
+    characteristic2 = -2;
+    numerator2 = 2;
+    denominator2 = -3; 
 
     //if the c-string can hold at least the characteristic
     if(add(characteristic1, numerator1, denominator1, characteristic2, numerator2, denominator2, answer, 10))
@@ -101,8 +102,6 @@ int main()
         cout<<"Error on divide"<<endl;
     }
 
-    cout << GCD(15, 75) << endl; 
-
     return 0;
 } 
 //--
@@ -128,7 +127,7 @@ bool add(int characteristic1, int numerator1, int denominator1, int characterist
     int resultNumerator = 0; 
     int resultDenominator = 0; 
     //make sure only the numerators can be negative and denominators are the same 
-    if (!changeDenominators(numerator1, denominator1, numerator2, denominator2, resultDenominator)) {
+    if (!equalizeDenominators(numerator1, denominator1, numerator2, denominator2, resultDenominator)) {
         return false; 
     }
 
@@ -175,7 +174,7 @@ bool subtract(int characteristic1, int numerator1, int denominator1, int charact
     int resultNumerator = 0; 
     int resultDenominator = 0; 
     //make sure only the numerators can be negative
-    if (!changeDenominators(numerator1, denominator1, numerator2, denominator2, resultDenominator)) {
+    if (!equalizeDenominators(numerator1, denominator1, numerator2, denominator2, resultDenominator)) {
         return false; 
     }
 
@@ -221,48 +220,59 @@ bool multiply(int characteristic1, int numerator1, int denominator1, int charact
     int resultNumerator = 0; 
     int resultDenominator = 0; 
     //make sure only the numerators can be negative
-    if (!changeDenominators(numerator1, denominator1, numerator2, denominator2, resultDenominator)) {
-        return false; 
-    }
-    int gcd1 = GCD(numerator1, resultDenominator);
+    // if (!equalizeDenominators(numerator1, denominator1, numerator2, denominator2, resultDenominator)) {
+    //     return false; 
+    // }
+    fixDenominators(numerator1, denominator1, numerator2, denominator2);
+    int gcd1 = GCD(numerator1, denominator1);
     numerator1 /= gcd1; 
     denominator1 /= gcd1; 
-    int gcd2 = GCD(numerator2, resultDenominator);
+    // cout << gcd1 << endl; 
+    // cout << numerator1 << endl; 
+    // cout << denominator1 << endl; 
+    int gcd2 = GCD(numerator1, denominator1);
     numerator2 /= gcd2; 
     denominator2 /= gcd2; 
+    // cout << gcd2 << endl; 
+    // cout << numerator2 << endl; 
+    // cout << denominator2 << endl; 
+    // int gcd2 = GCD(numerator2, resultDenominator);
+    // numerator2 /= gcd2; 
+    // denominator2 /= gcd2; 
 
-    if (willOverflowMult(characteristic1, resultDenominator)) {
+    if (willOverflowMult(characteristic1, denominator1)) {
         cout << "Error: Overflow/Underflow in multiply()" << endl; 
         return false; 
     }
-    if (willOverflowAdd(resultNumerator, characteristic1 * resultDenominator)) {
+    if (willOverflowAdd(resultNumerator, characteristic1 * denominator1)) {
         cout << "Error: Overflow/Underflow in multiply()" << endl; 
         return false; 
     }
-    resultNumerator += characteristic1 * resultDenominator;
+    resultNumerator += characteristic1 * denominator1;
     if (willOverflowAdd(resultNumerator, numerator1)) {
         cout << "Error: Overflow/Underflow in multiply()" << endl; 
         return false; 
     }
     resultNumerator += numerator1;
-    if (willOverflowMult(characteristic2, resultDenominator)) {
+    cout << resultNumerator << endl; 
+    if (willOverflowMult(characteristic2, denominator2)) {
         cout << "Error: Overflow/Underflow in multiply()" << endl; 
         return false; 
     }
-    if (willOverflowAdd(characteristic2 * resultDenominator, numerator2)) {
+    if (willOverflowAdd(characteristic2 * denominator2, numerator2)) {
         cout << "Error: Overflow/Underflow in multiply()" << endl; 
         return false; 
     }
-    if (willOverflowMult(resultNumerator, characteristic2 * resultDenominator + numerator2)) {
+    if (willOverflowMult(resultNumerator, characteristic2 * denominator2 + numerator2)) {
         cout << "Error: Overflow/Underflow in multiply()" << endl; 
         return false; 
     }
-    resultNumerator *= characteristic2 * resultDenominator + numerator2;
-    if (willOverflowMult(resultDenominator, resultDenominator)) {
+    resultNumerator *= characteristic2 * denominator2 + numerator2;
+    if (willOverflowMult(denominator1, denominator2)) {
         cout << "Error: Overflow/Underflow in multiply()" << endl; 
         return false; 
     }
-    resultDenominator *= resultDenominator; 
+    resultDenominator = denominator1 * denominator2; 
     //todo: add number simplifier to limit the growth of both numerator and denominator
     
     //convert the improper fraction if necessary
@@ -279,7 +289,7 @@ bool divide(int characteristic1, int numerator1, int denominator1, int character
     int resultNumerator = 0; 
     int resultDenominator = 0; 
     //make sure only the numerators can be negative
-    if (!changeDenominators(numerator1, denominator1, numerator2, denominator2, resultDenominator)) {
+    if (!equalizeDenominators(numerator1, denominator1, numerator2, denominator2, resultDenominator)) {
         return false; 
     }
 
@@ -442,8 +452,8 @@ bool toString(int characteristic, int numerator, int denominator, char result[],
     return true; 
 }
 
-//numerators will most likely be changed, denominators remained mostly untouched and are only converted to positive if necessary
-bool changeDenominators(int& numerator1, int& denominator1, int& numerator2, int& denominator2, int& resultDenominator) {
+//change denominators from negaitve to positive
+void fixDenominators(int& numerator1, int& denominator1, int& numerator2, int& denominator2) {
     if (denominator1 < 0) {
         numerator1 = -numerator1; 
         denominator1 = -denominator1; 
@@ -452,6 +462,11 @@ bool changeDenominators(int& numerator1, int& denominator1, int& numerator2, int
         numerator2 = -numerator2; 
         denominator2 = -denominator2; 
     }
+}
+
+//numerators will most likely be changed, denominators remained mostly untouched and are only converted to positive if necessary
+bool equalizeDenominators(int& numerator1, int& denominator1, int& numerator2, int& denominator2, int& resultDenominator) {
+    fixDenominators(numerator1, denominator1, numerator2, denominator2);
     //if denominators are different, we must cross multiply the fractions
     if (denominator1 != denominator2) {
         int lcm = LCM(denominator1, denominator2);
@@ -460,12 +475,12 @@ bool changeDenominators(int& numerator1, int& denominator1, int& numerator2, int
             return false; 
         }
         if (willOverflowMult(numerator1, lcm / denominator1)) {
-            cout << "Error: Overflow/Underflow in changeDenominators()" << endl; 
+            cout << "Error: Overflow/Underflow in equalizeDenominators()" << endl; 
             return false; 
         }
         numerator1 *= lcm / denominator1;
         if (willOverflowMult(numerator2, lcm / denominator2)) {
-            cout << "Error: Overflow/Underflow in changeDenominators()" << endl; 
+            cout << "Error: Overflow/Underflow in equalizeDenominators()" << endl; 
             return false; 
         }
         numerator2 *= lcm / denominator2; 
