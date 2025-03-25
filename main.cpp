@@ -52,13 +52,13 @@ int main()
     int characteristic2, numerator2, denominator2;
 
     //initialize the values
-    characteristic1 = -1;
+    characteristic1 = 1;
     numerator1 = 1;
-    denominator1 = -2;
+    denominator1 = 2;
 
-    characteristic2 = -2;
-    numerator2 = 2;
-    denominator2 = -3; 
+    characteristic2 = 2;
+    numerator2 = 0;
+    denominator2 = 8; 
 
     //if the c-string can hold at least the characteristic
     if(add(characteristic1, numerator1, denominator1, characteristic2, numerator2, denominator2, answer, 10))
@@ -102,6 +102,8 @@ int main()
         //display error message
         cout<<"Error on divide"<<endl;
     }
+
+    // cout << LCM(8, 1) << endl; 
 
     return 0;
 } 
@@ -325,21 +327,33 @@ bool divide(int characteristic1, int numerator1, int denominator1, int character
 //takes two ints and returns their least common multiple 
 int LCM(int a, int b)
 {
-    int greater = max(a, b);
+    if (a == 0 or b == 0) {
+        return 0;
+    }
+    int greatest = max(a, b);
     int smallest = min(a, b);
-    //loop finds the first multiple of the greater number that is divisible by the smaller number
-    for (int i = greater; ; i += greater) {
+    // cout << greatest << endl; 
+    // cout << smallest << endl; 
+    //loop finds the first multiple of the greatest number that is divisible by the smaller number
+    for (int i = greatest; ; i += greatest) {
         if (i % smallest == 0) {
             return i;
         }
-        if (willOverflowAdd(i, greater)) {
+        if (willOverflowAdd(i, greatest)) {
             cout << "Error: Least common multiple of fractions is larger than INT_MAX" << endl; 
             return -1; 
         }
+        // cout << i % smallest << endl; 
     }
 }
 
 int GCD(int a, int b) {
+    if (a == 0) {
+        return b;
+    }
+    if (b == 0) {
+        return a;
+    }
     if (willOverflowMult(a, b)) {
         cout << "Error: Overflow/Underflow in GCD()" << endl; 
         throw "Error: Overflow/Underflow in GCD()"; 
