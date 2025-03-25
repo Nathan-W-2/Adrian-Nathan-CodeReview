@@ -17,7 +17,7 @@ int countDigit(int num);
 int pow(int base, int power);
 int abs(int num);
 bool toString(int characteristic, int numerator, int denominator, char result[], int len);
-void fixDenominators(int& numerator1, int& denominator1, int& numerator2, int& denominator2);
+void fixDenominator(int& numerator1, int& denominator1);
 bool equalizeDenominators(int& numerator1, int& denominator1, int& numerator2, int& denominator2, int& resultDenominator);
 void reduceFraction(int& numerator, int& denominator);
 bool improperToMixed(int& resultNumerator, int resultDenominator, int& resultCharacteristic); 
@@ -221,7 +221,8 @@ bool multiply(int characteristic1, int numerator1, int denominator1, int charact
     int resultNumerator = 0; 
     int resultDenominator = 0; 
     //make sure only the numerators can be negative
-    fixDenominators(numerator1, denominator1, numerator2, denominator2);
+    fixDenominator(numerator1, denominator1);
+    fixDenominator(numerator2, denominator2);
     //reduce the fractions to prevent some cases of overflow
     reduceFraction(numerator1, denominator1); 
     reduceFraction(numerator2, denominator2); 
@@ -259,6 +260,7 @@ bool multiply(int characteristic1, int numerator1, int denominator1, int charact
     }
     resultDenominator = denominator1 * denominator2; 
     
+    fixDenominator(resultNumerator, resultDenominator);
     //convert the improper fraction if necessary
     if (!improperToMixed(resultNumerator, resultDenominator, resultCharacteristic)) {
         return false; 
@@ -273,7 +275,8 @@ bool divide(int characteristic1, int numerator1, int denominator1, int character
     int resultNumerator = 0; 
     int resultDenominator = 0; 
      //make sure only the numerators can be negative
-     fixDenominators(numerator1, denominator1, numerator2, denominator2);
+     fixDenominator(numerator1, denominator1);
+     fixDenominator(numerator2, denominator2);
      //reduce the fractions to prevent some cases of overflow
      reduceFraction(numerator1, denominator1); 
      reduceFraction(numerator2, denominator2); 
@@ -310,10 +313,8 @@ bool divide(int characteristic1, int numerator1, int denominator1, int character
         return false; 
     }
     resultDenominator = denominator1 * (characteristic2 * denominator2 + numerator2); 
-    //todo: add number simplifier to limit the growth of both numerator and denominator
-    cout << resultNumerator << endl; 
-    cout << resultDenominator << endl; 
     
+    fixDenominator(resultNumerator, resultDenominator);
     //convert the improper fraction if necessary
     if (!improperToMixed(resultNumerator, resultDenominator, resultCharacteristic)) {
         return false; 
@@ -440,20 +441,17 @@ bool toString(int characteristic, int numerator, int denominator, char result[],
 }
 
 //change denominators from negaitve to positive
-void fixDenominators(int& numerator1, int& denominator1, int& numerator2, int& denominator2) {
-    if (denominator1 < 0) {
-        numerator1 = -numerator1; 
-        denominator1 = -denominator1; 
-    }
-    if (denominator2 < 0) {
-        numerator2 = -numerator2; 
-        denominator2 = -denominator2; 
+void fixDenominator(int& numerator, int& denominator) {
+    if (denominator < 0) {
+        numerator = -numerator; 
+        denominator = -denominator; 
     }
 }
 
 //numerators will most likely be changed, denominators remained mostly untouched and are only converted to positive if necessary
 bool equalizeDenominators(int& numerator1, int& denominator1, int& numerator2, int& denominator2, int& resultDenominator) {
-    fixDenominators(numerator1, denominator1, numerator2, denominator2);
+    fixDenominator(numerator1, denominator1);
+    fixDenominator(numerator2, denominator2);
     //if denominators are different, we must cross multiply the fractions
     if (denominator1 != denominator2) {
         int lcm = LCM(denominator1, denominator2);
