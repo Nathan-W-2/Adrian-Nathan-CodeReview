@@ -75,16 +75,71 @@ int main()
 //--
 bool characteristic(const char numString[], int& c)
 {
-    //hard coded return value to make the main() work
-    c = 123;
+    int placeCounter = 0;
+    bool foundDecimal = false;
+    for (int decFinder = 0; decFinder < sizeof(numString); decFinder++)
+    {
+        if (numString[decFinder] == '.')
+        {
+            placeCounter = decFinder;
+            foundDecimal = true;
+            break;
+        }
+    }
+    if (foundDecimal == false)
+    {
+        placeCounter = sizeof(numString - 1);
+    }
+        vector<char> slicedCopy;
+        string assembledCopy = "";
+        int characteristic = 0;
+        for (int intTransposer = 0; intTransposer < placeCounter; intTransposer++)
+        {
+            assembledCopy = assembledCopy + numString[intTransposer];
+        }
+        stringstream stringToIntConverter(assembledCopy);
+        stringToIntConverter >> characteristic;
+        c = characteristic;
+        return true;
     return true;
 }
 //--
 bool mantissa(const char numString[], int& numerator, int& denominator)
 {
-    //hard coded return value to make the main() work
-    numerator = 456;
-    denominator = 1000;
+    int placeCounter = 0;
+    bool foundDecimal = false;
+    int numStringLength = strlen(numString);
+    for (int decFinder = 0; decFinder < numStringLength; decFinder++)
+    {
+        if (numString[decFinder] == '.')
+        {
+            placeCounter = decFinder;
+            foundDecimal = true;
+            break;
+        }
+    }
+    placeCounter++;
+    if (foundDecimal == false)
+    {
+        placeCounter = numStringLength - 1;
+    }
+    vector<char> slicedCopy;
+    string assembledCopy = "";
+    int mantissa = 0;
+    int denomSize = 0;
+    denominator = 1;
+    for (int intTransposer = placeCounter; intTransposer < numStringLength; intTransposer++)
+    {
+        assembledCopy = assembledCopy + numString[intTransposer];
+        denomSize++;
+    }
+    stringstream stringToIntConverter(assembledCopy);
+    stringToIntConverter >> mantissa;
+    for (int denomIterator = 0; denomIterator < denomSize; denomIterator++)
+    {
+        denominator *= 10;
+    }
+    numerator = mantissa;
     return true;
 }
 //--
