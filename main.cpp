@@ -360,8 +360,8 @@ int LeastCommonMultiple(int a, int b)
     // cout << greatest << endl; 
     // cout << smallest << endl; 
     //loop finds the first multiple of the greatest number that is divisible by the smaller number
-    for (int i = greatest; ; i += greatest) {
-        if (i % smallest == 0) {
+    for (int multiple = greatest; ; multiple += greatest) {
+        if (multiple % smallest == 0) {
             return i;
         }
         if (willOverflowAdd(i, greatest)) {
