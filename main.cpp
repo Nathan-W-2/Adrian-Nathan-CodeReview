@@ -10,8 +10,8 @@ bool subtract(int c1, int n1, int d1, int c2, int n2, int d2, char result[], int
 bool multiply(int c1, int n1, int d1, int c2, int n2, int d2, char result[], int len);
 bool divide(int c1, int n1, int d1, int c2, int n2, int d2, char result[], int len);
 
-int LCM(int a, int b);
-int GCD(int a, int b); 
+int LeastCommonMultiple(int a, int b);
+int GreatestCommonDivisor(int a, int b); 
 int countDigit(int num);
 int pow(int base, int power);
 int abs(int num);
@@ -102,7 +102,7 @@ int main()
         cout<<"Error on divide"<<endl;
     }
 
-    // cout << LCM(8, 1) << endl; 
+    // cout << LeastCommonMultiple(8, 1) << endl; 
 
     return 0;
 } 
@@ -350,7 +350,7 @@ bool divide(int c1, int n1, int d1, int c2, int n2, int d2, char result[], int l
 }
 
 //takes two ints and returns their least common multiple 
-int LCM(int a, int b)
+int LeastCommonMultiple(int a, int b)
 {
     if (a == 0 or b == 0) {
         return 0;
@@ -372,7 +372,7 @@ int LCM(int a, int b)
     }
 }
 
-int GCD(int a, int b) {
+int GreatestCommonDivisor(int a, int b) {
     if (a == 0) {
         return b;
     }
@@ -380,10 +380,10 @@ int GCD(int a, int b) {
         return a;
     }
     if (willOverflowMult(a, b)) {
-        cout << "Error: Overflow/Underflow in GCD()" << endl; 
-        throw "Error: Overflow/Underflow in GCD()"; 
+        cout << "Error: Overflow/Underflow in GreatestCommonDivisor()" << endl; 
+        throw "Error: Overflow/Underflow in GreatestCommonDivisor()"; 
     }
-    return (abs(a) * abs(b)) / LCM(a,b); 
+    return (abs(a) * abs(b)) / LeastCommonMultiple(a,b); 
 }
 
 //takes in a number, returns number of digits
@@ -493,8 +493,8 @@ bool equalizeDenominators(int& n1, int& d1, int& n2, int& d2, int& resultDenomin
     fixDenominator(n2, d2);
     //if denominators are different, we must cross multiply the fractions
     if (d1 != d2) {
-        int lcm = LCM(d1, d2);
-        //if lcm is -1, that means an error occured in LCM() and we exit the function
+        int lcm = LeastCommonMultiple(d1, d2);
+        //if lcm is -1, that means an error occured in LeastCommonMultiple() and we exit the function
         if (lcm == -1) {
             return false; 
         }
@@ -518,7 +518,7 @@ bool equalizeDenominators(int& n1, int& d1, int& n2, int& d2, int& resultDenomin
 }
 
 void reduceFraction(int& numerator, int& denominator) {
-    int gcd = GCD(numerator, denominator);
+    int gcd = GreatestCommonDivisor(numerator, denominator);
     numerator /= gcd; 
     denominator /= gcd; 
 }
