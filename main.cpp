@@ -77,9 +77,52 @@ bool characteristic(const char numString[], int& c)
 {
     int placeCounter = 0;
     bool foundDecimal = false;
-    for (int decFinder = 0; decFinder < sizeof(numString); decFinder++)
+    bool isNeg = false;
+    int firstNonWhitespaceCounter = 0;
+    int terminatorFinder = 0;
+    while (true)
     {
-        if (numString[decFinder] == '.')
+        if (numString[terminatorFinder] == '\0')
+            break;
+        terminatorFinder++;
+    }
+    for (int negativeFinder = 0; negativeFinder < terminatorFinder; negativeFinder++)
+    {
+        if (numString[negativeFinder] == '-')
+            isNeg = true;
+        else if (numString[negativeFinder] != ' ')
+        {
+            firstNonWhitespaceCounter = negativeFinder;
+            break;
+        }
+    }
+    int blah = sizeof(numString);
+    int blah2 = terminatorFinder;
+    int cleansedNumStringSize = 0;
+    char* cleansedNumString;
+    if (firstNonWhitespaceCounter != 0)
+    {
+        cleansedNumString = new char[terminatorFinder - firstNonWhitespaceCounter];
+        int cleansedNumStringIterator = 0;
+        for (int whitespaceIterator = firstNonWhitespaceCounter; whitespaceIterator < terminatorFinder; whitespaceIterator++)
+        {
+            cleansedNumString[cleansedNumStringIterator] = numString[whitespaceIterator];
+            cleansedNumStringSize++;
+            cleansedNumStringIterator++;
+        }
+    }
+    else
+    {
+        cleansedNumString = new char[terminatorFinder];
+        for (int numStringIterator = 0; numStringIterator < terminatorFinder; numStringIterator++)
+        {
+            cleansedNumString[numStringIterator] = numString[numStringIterator];
+        }
+        cleansedNumStringSize = terminatorFinder;
+    }
+    for (int decFinder = 0; decFinder < cleansedNumStringSize; decFinder++)
+    {
+        if (cleansedNumString[decFinder] == '.')
         {
             placeCounter = decFinder;
             foundDecimal = true;
@@ -88,27 +131,37 @@ bool characteristic(const char numString[], int& c)
     }
     if (foundDecimal == false)
     {
-        placeCounter = sizeof(numString - 1);
+        placeCounter = cleansedNumStringSize - 1;
     }
-        vector<char> slicedCopy;
-        string assembledCopy = "";
-        int characteristic = 0;
-        for (int intTransposer = 0; intTransposer < placeCounter; intTransposer++)
-        {
-            assembledCopy = assembledCopy + numString[intTransposer];
-        }
-        stringstream stringToIntConverter(assembledCopy);
-        stringToIntConverter >> characteristic;
-        c = characteristic;
-        return true;
+    char* slicedCopy = new char[placeCounter];
+    int characteristic = 0;
+    for (int intTransposer = 0; intTransposer < placeCounter; intTransposer++)
+    {
+        slicedCopy[intTransposer] = cleansedNumString[intTransposer];
+    }
+    int powerMultiplier = 1;
+    for (int charToIntIterator = placeCounter - 1; charToIntIterator >= 0; charToIntIterator--)
+    {
+        characteristic = characteristic + (slicedCopy[charToIntIterator] - '0') * powerMultiplier;
+        powerMultiplier *= 10;
+    }
+    if (isNeg)
+        characteristic *= -1;
+    c = characteristic;
     return true;
 }
-//--
 bool mantissa(const char numString[], int& numerator, int& denominator)
 {
     int placeCounter = 0;
     bool foundDecimal = false;
-    int numStringLength = strlen(numString);
+    int terminatorFinder = 0;
+    while (true)
+    {
+        if (numString[terminatorFinder] == '\0')
+            break;
+        terminatorFinder++;
+    }
+    int numStringLength = terminatorFinder;
     for (int decFinder = 0; decFinder < numStringLength; decFinder++)
     {
         if (numString[decFinder] == '.')
@@ -123,18 +176,28 @@ bool mantissa(const char numString[], int& numerator, int& denominator)
     {
         placeCounter = numStringLength - 1;
     }
-    vector<char> slicedCopy;
-    string assembledCopy = "";
+    char* slicedCopy = new char[numStringLength - placeCounter];
     int mantissa = 0;
     int denomSize = 0;
-    denominator = 1;
+    int slicedCopyIterator = 0;
     for (int intTransposer = placeCounter; intTransposer < numStringLength; intTransposer++)
     {
-        assembledCopy = assembledCopy + numString[intTransposer];
+        if (numString[intTransposer] == ' ')
+        {
+            numStringLength = intTransposer;
+            break;
+        }
+        slicedCopy[slicedCopyIterator] = numString[intTransposer];
+        slicedCopyIterator++;
         denomSize++;
     }
-    stringstream stringToIntConverter(assembledCopy);
-    stringToIntConverter >> mantissa;
+    int powerMultiplier = 1;
+    for (int charToIntIterator = (numStringLength - placeCounter) - 1; charToIntIterator >= 0; charToIntIterator--)
+    {
+        mantissa = mantissa + (slicedCopy[charToIntIterator] - '0') * powerMultiplier;
+        powerMultiplier *= 10;
+    }
+    denominator = 1;
     for (int denomIterator = 0; denomIterator < denomSize; denomIterator++)
     {
         denominator *= 10;
@@ -142,6 +205,7 @@ bool mantissa(const char numString[], int& numerator, int& denominator)
     numerator = mantissa;
     return true;
 }
+
 //--
 bool add(int c1, int n1, int d1, int c2, int n2, int d2, char result[], int len)
 {
